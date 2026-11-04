@@ -1,89 +1,142 @@
 
-class Person {
-  String fullName;
-  int age;
-  bool isMarried;
+abstract class Switchable {
+  void turnOn();
+  void turnOff();
+}
 
-  Person(this.fullName, this.age, this.isMarried);
+abstract class Adjustable {
+  void increase();
+  void decrease();
+}
 
-  void introduce() {
-    print(
-      "Hi! My name is $fullName. "
-      "I am $age years old. "
-      "Married: ${isMarried ? 'Yes' : 'No'}.",
-    );
+mixin BatteryPowered {
+  int batteryLevel = 100;
+
+  void showBattery() {
+    print('Battery level: $batteryLevel%');
   }
 }
 
-// Enum Subject
-enum Subject { math, physics, english, history }
+abstract class Device implements Switchable {
+  final String name;
 
-// Student наследуется от Person
-class Student extends Person {
-  Map<Subject, double> marks;
+  Device(this.name);
 
-  Student(
-    String fullName,
-    int age,
-    bool isMarried,
-    this.marks,
-  ) : super(fullName, age, isMarried);
+  void showInfo() {
+    print('Device: $name');
+  }
+}
 
-  // Показывает оценки
-  void showMarks() {
-    print('Student: $fullName');
+class SmartLamp extends Device
+    with BatteryPowered
+    implements Adjustable {
+  int brightness = 50;
 
-    for (var entry in marks.entries) {
-      print('${entry.key.name}: ${entry.value}');
-    }
+  SmartLamp(String name) : super(name);
+
+  @override
+  void turnOn() {
+    print('Lamp $name is ON');
   }
 
-  // Считает среднюю оценку
-  double calculateAverage() {
-    if (marks.isEmpty) {
-      return 0.0;
-    }
+  @override
+  void turnOff() {
+    print('Lamp $name is OFF');
+  }
 
-    double sum = 0;
+  @override
+  void increase() {
+    brightness = (brightness + 10).clamp(0, 100);
+  }
 
-    for (var mark in marks.values) {
-      sum += mark;
-    }
+  @override
+  void decrease() {
+    brightness = (brightness - 10).clamp(0, 100);
+  }
 
-    return sum / marks.length;
+  @override
+  void showInfo() {
+    print('Lamp: $name, Brightness: $brightness%');
+  }
+}
+
+class SmartSpeaker extends Device
+    with BatteryPowered
+    implements Adjustable {
+  int volume = 50;
+
+  SmartSpeaker(String name) : super(name);
+
+  @override
+  void turnOn() {
+    print('Speaker $name is ON');
+  }
+
+  @override
+  void turnOff() {
+    print('Speaker $name is OFF');
+  }
+
+  @override
+  void increase() {
+    volume = (volume + 5).clamp(0, 100);
+  }
+
+  @override
+  void decrease() {
+    volume = (volume - 5).clamp(0, 100);
+  }
+
+  @override
+  void showInfo() {
+    print('Speaker: $name, Volume: $volume%');
+  }
+}
+
+class SmartThermostat extends Device {
+  int temperature = 22;
+
+  SmartThermostat(String name) : super(name);
+
+  @override
+  void turnOn() {
+    print('Thermostat $name is ON');
+  }
+
+  @override
+  void turnOff() {
+    print('Thermostat $name is OFF');
+  }
+
+  @override
+  void showInfo() {
+    print('Thermostat: $name, Temperature: $temperature°C');
   }
 }
 
 void main() {
-  // Создаём человека
-  Person person = Person('Alice Johnson', 30, true);
-  person.introduce();
+  List<Device> devices = [
+    SmartLamp('Living Room Lamp'),
+    SmartSpeaker('JBL Speaker'),
+    SmartThermostat('Home Thermostat'),
+  ];
 
-  print('');
+  for (var device in devices) {
+    device.showInfo();
 
-  // Создаём студента
-  Student student = Student(
-    'Adam White',
-    20,
-    false,
-    {
-      Subject.math: 90,
-      Subject.physics: 85,
-      Subject.english: 92,
-      Subject.history: 89,
-    },
-  );
+    device.turnOn();
 
-  // Информация о студенте
-  student.introduce();
+    if (device is Adjustable) {
+    (device as Adjustable).increase();
+      device.showInfo();
+    }
 
-  print('');
+    if (device is BatteryPowered) {
+      (device as BatteryPowered).showBattery();
+    }
 
-  // Показываем оценки
-  student.showMarks();
+    print('');
+  }
 
-  print('');
-
-  // Средняя оценка
-  print('Average mark: ${student.calculateAverage()}');
+  print('All devices processed.');
 }
